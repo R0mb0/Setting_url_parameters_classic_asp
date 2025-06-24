@@ -146,17 +146,17 @@
 
             Dim my_url 
             my_url = url 
-            my_url = my_url + "?"
+            my_url = my_url & "?"
             Dim index 
             Dim is_first
             is_first = True 
 
             For index = 0 To UBound(names)
                 If is_first Then 
-                    my_url = my_url + names(index) + "=" + parameters(index)
+                    my_url = my_url & names(index) & "=" & parameters(index)
                     is_first = False 
                 Else
-                    my_url = my_url + "&" + names(index) + "=" + parameters(index)
+                    my_url = my_url & "&" & names(index) & "=" & parameters(index)
                 End If 
             Next
 
@@ -194,21 +194,6 @@
                 <SCRIPT language='javascript'>window.open('<%=url%>');</SCRIPT>
             <%
         End Function
-
-
-        'For debug purpose 
-        Public Function get_names
-            For Each temp In names 
-                Response.write temp & "<br>"
-            Next 
-        End Function 
-
-        Public Function get_parameters
-           For Each temp In parameters 
-                Response.write temp & "<br>"
-            Next 
-        End Function 
-
 
     End Class
 %> 
