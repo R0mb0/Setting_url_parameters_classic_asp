@@ -31,10 +31,10 @@
         Public Function add_parameter(ByVal name, ByVal parameter)
             If Not(has_been_initialized) Then 
                 'If the arrays has not been initialized 
-                Redim Preserve name(0)
+                Redim Preserve names(0)
                 Redim Preserve parameters(0)
                 has_been_initialized = True 
-                name(0) = name 
+                names(0) = name 
                 parameters(0) = parameter 
             Else 
                 'If the arrays has been initialized 
@@ -56,6 +56,8 @@
             Dim temp_array
             temp_array = Array()
             Dim targhet_index
+            Dim error
+            error = True  
 
             For Each temp In names 
                 If Not(temp = name) Then 
@@ -64,9 +66,14 @@
                     array_index = array_index + 1
                 Else 
                     targhet_index = index 
+                    error = False 
                 End If 
                 index = index + 1
             Next 
+
+            If error Then 
+                 Call Err.Raise(vbObjectError + 10, "setting_parameters_to_url.class - remove_parameter_by_name", "The name is not present")
+            End If 
             
             'Update array
             names = temp_array
@@ -97,6 +104,8 @@
             Dim temp_array
             temp_array = Array()
             Dim targhet_index
+            Dim error 
+            error = True 
             
             For Each temp In parameters 
                 If Not(temp = parameter) Then 
@@ -105,9 +114,14 @@
                     array_index = array_index + 1
                 Else 
                     targhet_index = index 
+                    error = False 
                 End If 
                 index = index + 1
             Next 
+
+            If error Then 
+                Call Err.Raise(vbObjectError + 10, "setting_parameters_to_url.class - remove_parameter_by_name", "The parameter is not present")
+            End If 
             
             'Update array
             parameters = temp_array
@@ -127,12 +141,52 @@
             names = temp_array
         End Function
 
+        'Funtion to generate url with paramters 
         Public Function set_parameters_to_url(ByVal url)
 
-        
+            Dim my_url 
+            my_url = url 
+            my_url = my_url + "?"
+            Dim index 
+            Dim is_first
+            is_first = True 
 
+            For index = 0 To UBound(names)
+                If is_first Then 
+                    my_url = my_url + names(index) + "=" + parameters(index)
+                    is_first = False 
+                Else
+                    my_url = my_url + "&" + names(index) + "=" + parameters(index)
+                End If 
+            Next
+
+            set_parameters_to_url = my_url
         End Function 
 
+         'Function to get current url'
+        Public Function get_current_url()
+            Dim protocol
+            Dim domainName
+            Dim fileName
+            Dim queryString
+            Dim url
+
+            protocol = "http" 
+            If lcase(request.ServerVariables("HTTPS"))<> "off" Then 
+                protocol = "https" 
+            End If
+
+            domainName = Request.ServerVariables("SERVER_NAME") 
+            fileName = Request.ServerVariables("SCRIPT_NAME") 
+            queryString = Request.ServerVariables("QUERY_STRING")
+
+            url = protocol & "://" & domainName & fileName
+            If Len(queryString)<>0 Then
+                url = url & "?" & queryString
+            End If
+
+            get_current_url = url 
+        End Function
 
         'Function to redirect to another page'
         Public Function redirect(ByVal url)
@@ -140,5 +194,21 @@
                 <SCRIPT language='javascript'>window.open('<%=url%>');</SCRIPT>
             <%
         End Function
+
+
+        'For debug purpose 
+        Public Function get_names
+            For Each temp In names 
+                Response.write temp & "<br>"
+            Next 
+        End Function 
+
+        Public Function get_parameters
+           For Each temp In parameters 
+                Response.write temp & "<br>"
+            Next 
+        End Function 
+
+
     End Class
 %> 
